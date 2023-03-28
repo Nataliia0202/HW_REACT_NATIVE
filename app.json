@@ -3,7 +3,8 @@
     "name": "ReactN",
     "slug": "ReactN",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "plugins": ["expo-image-picker"],
+    "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
@@ -11,9 +12,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true
     },

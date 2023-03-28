@@ -1,67 +1,188 @@
-import React, {useState} from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   StyleSheet,
+  Image,
+  ImageBackground,
   Text,
   View,
   KeyboardAvoidingView,
   TextInput,
   Alert,
+  Platform,
+  ScrollView,
+  Keyboard,
   TouchableOpacity,
+  TouchableWithoutFeedback,
+  Dimensions,
 } from "react-native";
-import { Avatar } from "../../../ReactNativeApp/ReactN/Components/Avatar";
+const imageBg = require("../../../ReactNativeApp/ReactN/assets/images/PhotoBG.jpg");
+import { useDispatch } from "react-redux";
+import { register } from "../../../ReactNativeApp/ReactN/redux/userOperations";
+import SVGImg from "../../../ReactNativeApp/ReactN/assets/images/add.svg";
 
-export const RegistrationScreen = () => {
+import * as ImagePicker from "expo-image-picker";
+import { uploadPhotoToStorage } from "../../../ReactNativeApp/ReactN/redux/userOperations";
+
+export const RegistrationScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
   const [isShowkeyboard, setIsShowkeyboard] = useState(false);
+  const [login, setLogin] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordShown, setPasswordShown] = useState(true);
+
+  // const [image, setImage] = useState(null);
+  const [avatar, setAvatar] = useState(null);
+
+  const [isFocused, setIsFocused] = useState(false);
+  const handleFocus = useCallback(() => {
+    setIsShowkeyboard(true);
+    setIsFocused(!isFocused);
+  }, [isFocused]);
+
+  const loginHandler = (text) => setLogin(text);
+  const emailHandler = (text) => setEmail(text);
+  const passwordHandler = (text) => setPassword(text);
+
+  const [dimensions, setdimensions] = useState(Dimensions.get("window").width);
+
+  useEffect(() => {
+    const onChange = () => {
+      const width = Dimensions.get("window").width;
+
+      setdimensions(width);
+    };
+    Dimensions.addEventListener("change", onChange);
+    return () => {
+      Dimensions.removeEventListener("change", onChange);
+    };
+  }, []);
+
+  const keyboardHide = async () => {
+    if (login === "" || email === "" || password === "") {
+      return Alert.alert("Заполните поля");
+    } else {
+      // const avatar = await uploadPhotoToStorage();
+      dispatch(register({ email, password, login, avatar: avatar }));
+      console.log({ email, password, login, avatar: avatar });
+    }
+    setLogin("");
+    setEmail("");
+    setPassword("");
+    
+  };
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      
+      // setImage(result.assets[0].uri);
+      setAvatar(result.assets[0].uri);
+     
+    }
+  };
+
+  // const onTransition = () => {
+  //   navigation.navigate("Логин");
+  // };
+  const showPassword = () => {
+    if (passwordShown === true) {
+      setPasswordShown(false);
+    }
+    if (passwordShown === false) {
+      setPasswordShown(true);
+    }
+  };
+
+  
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <View style={styles.form}>
-        <Avatar />
-        <Text style={styles.text}>Регистрация</Text>
-        <View>
-          <TextInput
-            style={styles.input}
-            placeholder="Логин"
-            onFocus={() => setIsShowkeyboard(true)}
-          />
-        </View>
-        <View>
-          <TextInput
-            style={styles.input}
-            placeholder="Адрес электронной почты"
-            onFocus={() => setIsShowkeyboard(true)}
-          />
-        </View>
-        <View style={styles.inputWraper}>
-          <TextInput
-            style={styles.input}
-            placeholder="Пароль"
-            onFocus={() => setIsShowkeyboard(true)}
-          />
-
-          <TouchableOpacity
-            style={styles.buttonShow}
-            onPress={() => Alert.alert("Simple Button pressed")}
-          >
-            <Text style={styles.viewForText}>Показать</Text>
-          </TouchableOpacity>
-        </View>
-
-        
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => Alert.alert("Simple Button pressed")}
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <ImageBackground source={imageBg} resizeMode="cover" style={styles.image}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
-          <Text style={styles.textTitel}> Зарегистрироваться </Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => Alert.alert("Simple Button pressed")}>
-          <Text style={styles.viewForText}>Уже есть аккаунт? Войти</Text>
-        </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+          <ScrollView contentContainerStyle={styles.contentContainer}>
+            <View style={{ ...styles.form, width: dimensions }}>
+              <View style={styles.containerIMG}>
+                <Image
+                  style={styles.avatar}
+                  source={{
+                    uri: avatar,
+                  }}
+                />
+                <TouchableOpacity style={styles.svg} onPress={pickImage}>
+                  <SVGImg width={25} height={25} />
+                </TouchableOpacity>
+              </View>
+
+              <Text style={styles.text}>Регистрация</Text>
+              <View>
+                <TextInput
+                  value={login}
+                  onChangeText={loginHandler}
+                  style={{
+                    ...styles.input,
+                    borderColor: isFocused ? "#FF6C00" : "#E8E8E8",
+                  }}
+                  placeholder="Логин"
+                  onFocus={handleFocus}
+                  selectionColor="#FF6C00"
+                />
+              </View>
+              <View>
+                <TextInput
+                  value={email}
+                  onChangeText={emailHandler}
+                  style={{
+                    ...styles.input,
+                    borderColor: isFocused ? "#FF6C00" : "#E8E8E8",
+                  }}
+                  placeholder="Адрес электронной почты"
+                  onFocus={handleFocus}
+                  selectionColor="#FF6C00"
+                />
+              </View>
+              <View style={styles.inputWraper}>
+                <TextInput
+                  value={password}
+                  onChangeText={passwordHandler}
+                  secureTextEntry={passwordShown}
+                  style={{
+                    ...styles.input,
+                    borderColor: isFocused ? "#FF6C00" : "#E8E8E8",
+                  }}
+                  placeholder="Пароль"
+                  onFocus={handleFocus}
+                  selectionColor="#FF6C00"
+                />
+
+                <TouchableOpacity
+                  style={styles.buttonShow}
+                  onPress={showPassword}
+                >
+                  <Text style={styles.viewForText}>Показать</Text>
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity style={styles.button} onPress={keyboardHide}>
+                <Text style={styles.textTitel}> Зарегистрироваться </Text>
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Text style={styles.viewForText}>Уже есть аккаунт? Войти</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </ImageBackground>
+    </TouchableWithoutFeedback>
   );
-}
+};
 
 const styles = StyleSheet.create({
   input: {
@@ -70,55 +191,67 @@ const styles = StyleSheet.create({
     borderColor: "#E8E8E8",
     height: 50,
     borderRadius: 8,
-    marginHorizontal: 40,
-    color: "#f0f8ff",
+
+    color: "#212121",
     backgroundColor: "#F6F6F6",
     marginBottom: 16,
-    width: 343,
+    // width: 343,
     fontSize: 16,
-    lineHeight: 19, 
+    lineHeight: 19,
+    fontFamily: "Roboto-Regular",
   },
   form: {
-    // flex: 3,
     justifyContent: "flex-end",
-    position: 'relative',
-    paddingBottom: 45,
-    alignItems: "center",
+    position: "relative",
+    // marginHorizontal: 16,
+    alignItems: "stretch",
+
     backgroundColor: "#FFFFFF",
-    height: 549,
+    height: 520,
+
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
+    paddingHorizontal: 16,
   },
   text: {
-    // fontFamily: "Roboto",
-    fontWeight: 500,
+    fontFamily: "Roboto-Bold",
+
     fontSize: 30,
     textAlign: "center",
     letterSpacing: 0.01,
     color: "#212121",
     marginBottom: 32,
+
+    fontWeight: "500",
   },
   button: {
     marginTop: 27,
     marginBottom: 16,
     backgroundColor: "#FF6C00",
-    alignItems: "center",
+    justifyContent: "center",
     paddingTop: 16,
     paddingBottom: 16,
     paddingLeft: 32,
     paddingRight: 32,
     borderRadius: 100,
     width: 343,
+    flexDirection: "row",
+    alignSelf: "center",
   },
   textTitel: {
     color: "#FFFFFF",
     fontSize: 16,
     lineHeight: 19,
+    fontFamily: "Roboto-Regular",
   },
   viewForText: {
     color: "#1B4371",
     fontSize: 16,
     lineHeight: 19,
+    paddingBottom: 45,
+    fontFamily: "Roboto-Regular",
+    flexDirection: "row",
+    alignSelf: "center",
   },
   inputWraper: {
     position: "relative",
@@ -126,6 +259,34 @@ const styles = StyleSheet.create({
   buttonShow: {
     position: "absolute",
     top: 14,
-    right: 55,
+    right: 25,
+  },
+  contentContainer: {
+    paddingTop: 105,
+  },
+  containerIMG: {
+    position: "absolute",
+    width: 120,
+    height: 120,
+    paddingTop: 30,
+    borderRadius: 16,
+    top: -60,
+    backgroundColor: "#F6F6F6",
+    alignSelf: "center",
+  },
+  avatar: {
+    position: "absolute",
+    width: 120,
+    height: 120,
+    borderRadius: 10,
+  },
+  svg: {
+    position: "absolute",
+    bottom: 14,
+    right: -12,
+  },
+  image: {
+    flex: 1,
+    justifyContent: "flex-end",
   },
 });
