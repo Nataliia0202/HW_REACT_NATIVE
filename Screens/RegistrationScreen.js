@@ -26,141 +26,33 @@ import { uploadPhotoToStorage } from "../../../ReactNativeApp/ReactN/redux/userO
 export const RegistrationScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const [isShowkeyboard, setIsShowkeyboard] = useState(false);
-  const [login, setLogin] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [passwordShown, setPasswordShown] = useState(true);
-
-  // const [image, setImage] = useState(null);
-  const [avatar, setAvatar] = useState(null);
-
-  const [isFocused, setIsFocused] = useState(false);
-  const handleFocus = useCallback(() => {
-    setIsShowkeyboard(true);
-    setIsFocused(!isFocused);
-  }, [isFocused]);
-
-  const loginHandler = (text) => setLogin(text);
-  const emailHandler = (text) => setEmail(text);
-  const passwordHandler = (text) => setPassword(text);
-
-  const [dimensions, setdimensions] = useState(Dimensions.get("window").width);
-
-  useEffect(() => {
-    const onChange = () => {
-      const width = Dimensions.get("window").width;
-
-      setdimensions(width);
-    };
-    Dimensions.addEventListener("change", onChange);
-    return () => {
-      Dimensions.removeEventListener("change", onChange);
-    };
-  }, []);
-
-  const keyboardHide = async () => {
-    if (login === "" || email === "" || password === "") {
-      return Alert.alert("Заполните поля");
-    } else {
-      // const avatar = await uploadPhotoToStorage();
-      dispatch(register({ email, password, login, avatar: avatar }));
-      console.log({ email, password, login, avatar: avatar });
-    }
-    setLogin("");
-    setEmail("");
-    setPassword("");
-    
-  };
-
-  const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      
-      // setImage(result.assets[0].uri);
-      setAvatar(result.assets[0].uri);
-     
-    }
-  };
-
-  // const onTransition = () => {
-  //   navigation.navigate("Логин");
-  // };
-  const showPassword = () => {
-    if (passwordShown === true) {
-      setPasswordShown(false);
-    }
-    if (passwordShown === false) {
-      setPasswordShown(true);
-    }
-  };
-
-  
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <ImageBackground source={imageBg} resizeMode="cover" style={styles.image}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-        >
-          <ScrollView contentContainerStyle={styles.contentContainer}>
-            <View style={{ ...styles.form, width: dimensions }}>
-              <View style={styles.containerIMG}>
-                <Image
-                  style={styles.avatar}
-                  source={{
-                    uri: avatar,
-                  }}
-                />
-                <TouchableOpacity style={styles.svg} onPress={pickImage}>
-                  <SVGImg width={25} height={25} />
-                </TouchableOpacity>
-              </View>
-
-              <Text style={styles.text}>Регистрация</Text>
-              <View>
-                <TextInput
-                  value={login}
-                  onChangeText={loginHandler}
-                  style={{
-                    ...styles.input,
-                    borderColor: isFocused ? "#FF6C00" : "#E8E8E8",
-                  }}
-                  placeholder="Логин"
-                  onFocus={handleFocus}
-                  selectionColor="#FF6C00"
-                />
-              </View>
-              <View>
-                <TextInput
-                  value={email}
-                  onChangeText={emailHandler}
-                  style={{
-                    ...styles.input,
-                    borderColor: isFocused ? "#FF6C00" : "#E8E8E8",
-                  }}
-                  placeholder="Адрес электронной почты"
-                  onFocus={handleFocus}
-                  selectionColor="#FF6C00"
-                />
-              </View>
-              <View style={styles.inputWraper}>
-                <TextInput
-                  value={password}
-                  onChangeText={passwordHandler}
-                  secureTextEntry={passwordShown}
-                  style={{
-                    ...styles.input,
-                    borderColor: isFocused ? "#FF6C00" : "#E8E8E8",
-                  }}
-                  placeholder="Пароль"
-                  onFocus={handleFocus}
-                  selectionColor="#FF6C00"
-                />
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <View style={styles.form}>
+        <Avatar />
+        <Text style={styles.text}>Регистрация</Text>
+        <View>
+          <TextInput
+            style={styles.input}
+            placeholder="Логин"
+            onFocus={() => setIsShowkeyboard(true)}
+          />
+        </View>
+        <View>
+          <TextInput
+            style={styles.input}
+            placeholder="Адрес электронной почты"
+            onFocus={() => setIsShowkeyboard(true)}
+          />
+        </View>
+        <View style={styles.inputWraper}>
+          <TextInput
+            style={styles.input}
+            placeholder="Пароль"
+            onFocus={() => setIsShowkeyboard(true)}
+          />
 
                 <TouchableOpacity
                   style={styles.buttonShow}
@@ -170,17 +62,18 @@ export const RegistrationScreen = ({ navigation }) => {
                 </TouchableOpacity>
               </View>
 
-              <TouchableOpacity style={styles.button} onPress={keyboardHide}>
-                <Text style={styles.textTitel}> Зарегистрироваться </Text>
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <Text style={styles.viewForText}>Уже есть аккаунт? Войти</Text>
-              </TouchableOpacity>
-            </View>
-          </ScrollView>
-        </KeyboardAvoidingView>
-      </ImageBackground>
-    </TouchableWithoutFeedback>
+        
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => Alert.alert("Simple Button pressed")}
+        >
+          <Text style={styles.textTitel}> Зарегистрироваться </Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => Alert.alert("Simple Button pressed")}>
+          <Text style={styles.viewForText}>Уже есть аккаунт? Войти</Text>
+        </TouchableOpacity>
+      </View>
+    </KeyboardAvoidingView>
   );
 };
 
